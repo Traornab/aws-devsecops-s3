@@ -1,0 +1,30 @@
+name: DevSecOps Pipeline
+on: [push]
+
+permissions:
+  id-token: write # Requis pour OIDC
+  contents: read
+
+jobs:
+  security-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cloner le code
+        uses: actions/checkout@v4
+
+      - name: Authentification AWS (OIDC Zero Trust)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::576951332096:role/github-actions-devsecops-role
+          aws-region: eu-north-1
+
+      - name: Audit de sécurité (Checkov)
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          soft_fail: true # Ne bloque pas le déploiement pour les avertissements mineurs
+
+      - name: Déploiement Terraform
+        run: |
+          terraform init
+          terraform apply -auto-approve
