@@ -22,7 +22,10 @@ jobs:
         uses: bridgecrewio/checkov-action@master
         with:
           directory: .
-          soft_fail: true # Ne bloque pas le déploiement pour les avertissements mineurs
+          soft_fail: true
+
+      - name: Installer Terraform
+        uses: hashicorp/setup-terraform@v3
 
       - name: Déploiement Terraform
         run: |
