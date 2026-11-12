@@ -6,7 +6,7 @@
 ![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?logo=github-actions&logoColor=white)
 
 ## Contexte du Projet
-Ce projet illustre la conception, la sécurisation et le déploiement 100% automatisé d'une infrastructure de stockage cloud sur Amazon Web Services (AWS). Conçu selon l'approche **Infrastructure as Code (IaC)** avec Terraform, il intègre des pratiques **DevSecOps** pour garantir un déploiement sécurisé, auditable et prêt pour la production.
+Ce projet illustre la conception, la sécurisation et le déploiement automatisé d'une infrastructure de stockage cloud sur Amazon Web Services (AWS). Conçu selon l'approche **Infrastructure as Code (IaC)** avec Terraform, il intègre des pratiques **DevSecOps** pour garantir un déploiement sécurisé, auditable et prêt pour la production.
 
 L'objectif est de provisionner un coffre-fort numérique (Amazon S3) hautement sécurisé, déployé exclusivement via un pipeline d'intégration continue avec validation de sécurité automatisée .
 
