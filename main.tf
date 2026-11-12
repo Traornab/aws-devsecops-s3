@@ -1,5 +1,12 @@
 terraform {
   required_version = ">= 1.0"
+  
+  backend "s3" {
+    bucket = "mon-projet-tfstate-backend-13579" 
+    key    = "devsecops/terraform.tfstate"
+    region = "eu-north-1"
+  }
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -7,7 +14,6 @@ terraform {
     }
   }
 }
-
 provider "aws" {
   region = "eu-north-1"
 }
