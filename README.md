@@ -1,75 +1,79 @@
-# Enterprise AWS DevSecOps : Secure Cloud Storage & CI/CD
+# Projet DevSecOps AWS : Secure Cloud Storage & CI/CD
 
 ![Terraform](https://img.shields.io/badge/Terraform-1.5+-623CE4?logo=terraform&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-S3%20%7C%20KMS%20%7C%20IAM-FF9900?logo=amazonaws&logoColor=white)
 ![Checkov](https://img.shields.io/badge/Security-Checkov-20B2AA?logo=security)
 ![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?logo=github-actions&logoColor=white)
 
-## Contexte du Projet
-Ce projet illustre la conception, la sécurisation et le déploiement automatisé d'une infrastructure de stockage cloud sur Amazon Web Services (AWS). Conçu selon l'approche **Infrastructure as Code (IaC)** avec Terraform, il intègre des pratiques **DevSecOps** pour garantir un déploiement sécurisé, auditable et prêt pour la production.
+## Pourquoi ce projet ?
+Étudiant en fin d'études en cybersécurité, j'ai conçu ce projet pour me confronter aux réalités du terrain.
 
-L'objectif est de provisionner un coffre-fort numérique (Amazon S3) hautement sécurisé, déployé exclusivement via un pipeline d'intégration continue avec validation de sécurité automatisée .
+Mon objectif avec ce projet est simple : en apprendre toujours plus sur la sécurité Cloud 
+* un domaine qui devient ma passion de jour en jour 
+* en construisant de zéro une infrastructure AWS sécurisée, 100 % automatisée avec Terraform et prête pour la production.
+
+J'y ai déployé un coffre-fort numérique (Amazon S3) qui se met à jour tout seul via un pipeline d'intégration continue, avec des contrôles de sécurité à chaque étape.
+---
+
+## Mes choix d'architecture
+Pour que ce projet soit solide, je me suis basé sur les bonnes pratiques d'AWS :
+
+*   **Stockage Principal (`aws_s3_bucket`) :** J'ai provisionné un bucket S3 privé. J'ai activé le versioning pour être sûr de ne jamais perdre de données, même en cas de suppression accidentelle ou d'attaque ransomware.
+*   **Le chiffrement (`aws_kms_key`) :** Je ne voulais pas dépendre de la clé par défaut d'AWS. J'ai donc créé ma propre clé de chiffrement (KMS Customer Managed Key) et j'ai activé sa rotation annuelle automatique.
+*   **La traçabilité (`aws_s3_bucket_logging`) :** Pour savoir qui fait quoi. J'ai créé un deuxième bucket S3 qui ne sert qu'à une seule chose : stocker les logs d'accès du premier bucket pour l'analyse forensique.
+*   **La mémoire Terraform   :** Pour éviter les conflits quand GitHub déploie mon code, j'ai déporté le fichier d'état (`terraform.tfstate`) dans un "Remote Backend" sur S3.
 
 ---
 
-## Architecture Technique
-L'infrastructure repose sur des services AWS managés, configurés selon les principes du **Well-Architected Framework** :
+## Sécurité (L'approche DevSecOps)
+J'ai intégré la sécurité directement dans mon code et sur l'infrastructure :
 
-*   **Stockage Principal (`aws_s3_bucket`) :** Compartiment S3 privé agissant comme un coffre-fort, protégé contre les suppressions accidentelles et les ransomwares (Versioning).
-*   **Chiffrement Avancé (`aws_kms_key`) :** Utilisation d'une clé **KMS Customer Managed Key (CMK)** avec rotation automatique annuelle, remplaçant la clé AWS par défaut pour un contrôle total du cycle de vie cryptographique.
-*   **Audit & Traçabilité (`aws_s3_bucket_logging`) :** Création d'un second compartiment S3 dédié exclusivement à la centralisation des journaux d'accès (Server Access Logs) pour l'analyse forensique.
-*   **Gestion de l'État Terraform (Remote State) :** Centralisation du fichier `terraform.tfstate` dans un **Remote Backend S3** pour garantir l'idempotence, prévenir les conflits de déploiement et sécuriser les métadonnées de l'infrastructure.
-
----
-
-## Sécurité & Hardening (DevSecOps)
-La sécurité est intégrée à la fois dans le code (Shift-Left) et sur l'infrastructure (Hardening) :
-
-1.  **Analyse Statique (SAST) avec Checkov :** Le code HCL est scanné à chaque `push` par Bridgecrew Checkov pour détecter et bloquer les vulnérabilités de configuration avant même le déploiement sur AWS.
-2.  **Public Access Block (PAB) :** Application stricte des règles de blocage public au niveau du bucket S3, prévenant toute exposition de données suite à une erreur humaine.
-3.  **Principe du Moindre Privilège :** Les accès GitHub Actions sont restreints au strict minimum nécessaire via des politiques IAM ciblées.
+1.  **Scan automatique avec Checkov :** À chaque fois que j'envoie du code, Checkov l'analyse. Si je fais une erreur de configuration (par exemple, si j'oublie de chiffrer un disque), le déploiement est immédiatement bloqué.
+2.  **Verrouillage du bucket (PAB) :** J'ai activé le blocage strict des accès publics. C'est impossible d'exposer mes données sur internet, même par erreur.
+3.  **Moindre privilège :** J'ai configuré les droits de mon robot GitHub Actions pour qu'il n'ait accès qu'au strict minimum.
 
 ---
 
-## Contraintes Organisationnelles (SCP) & Fallbacks
-Ce projet a été déployé sur un environnement AWS soumis à des **Service Control Policies (SCP)** strictes gérées via *AWS Organizations* (simulant un environnement bancaire ou de grande entreprise très régulé). Face à des erreurs `403 AccessDeniedException`, des solutions de contournement ont été implémentées :
+## Les problèmes rencontrés (et mes solutions)
+J'ai déployé cette infrastructure sur un compte AWS soumis à des règles d'entreprise très strictes (AWS Organizations avec des SCP). Je me suis pris des erreurs "403 Access Denied", et j'ai dû trouver des plans B sécurisés :
 
-| Fonctionnalité Prévue | Action IAM Bloquée | Contrainte SCP | Solution Implémentée (Fallback) |
-| :--- | :--- | :--- | :--- |
-| **Authentification Zero Trust** | `iam:CreateOpenIDConnectProvider` | OIDC Interdit | Utilisation de GitHub Secrets chiffrés pour les Access Keys, combinée à des permissions restreintes. |
-| **Data Loss Prevention (DLP)** | `macie2:EnableMacie` | Amazon Macie Interdit | Renforcement de la sécurité préventive via le chiffrement avancé (KMS CMK) et le traçage complet (S3 Access Logs) en l'absence de scan PII. |
-
----
-
-## CI/CD Pipeline (GitHub Actions)
-Le fichier `.github/workflows/deploy.yml` orchestre le déploiement à chaque modification de la branche `main` :
-
-1.  **Checkout :** Clonage du dépôt.
-2.  **Authentication :** Connexion sécurisée à AWS.
-3.  **Security Scan :** Audit de l'infrastructure via Checkov.
-4.  **Setup Terraform :** Installation de l'environnement HashiCorp.
-5.  **Provisioning :** Exécution automatisée de `terraform init` (connexion au Remote Backend) et `terraform apply -auto-approve`.
+| Ce que je voulais faire | Le blocage (SCP) | Mon plan B (Fallback) |
+| :--- | :--- | :--- |
+| **Me connecter sans mot de passe (OIDC)** | Création d'OIDC interdite | J'ai utilisé des clés d'accès classiques, mais je les ai stockées de manière chiffrée dans les *GitHub Secrets*, en limitant fortement les permissions de mon pipeline. |
+| **Scanner les données avec l'IA (Macie)** | Activation de Macie interdite | Comme je ne pouvais pas scanner le contenu, j'ai bétonné le contenant : chiffrement avancé (KMS) obligatoire et journalisation de chaque action sur le bucket. |
 
 ---
 
-##  Déploiement & Reproductibilité
-Pour reproduire cette infrastructure dans votre environnement AWS :
+## Mon Pipeline CI/CD
+Tout est automatisé. Quand je push mon code sur la branche `main`, GitHub Actions prend le relais :
+
+1.  Il récupère mon code Terraform.
+2.  Il s'authentifie sur mon compte AWS.
+3.  Il lance l'audit de sécurité (Checkov).
+4.  Il prépare l'environnement.
+5.  Il déploie l'infrastructure de manière autonome (`terraform apply`).
+
+---
+
+## Tester le projet chez vous
+Si vous voulez cloner mon repo et déployer cette architecture sur votre compte AWS :
 
 ```bash
-# 1. Configurer le bucket S3 pour le Remote Backend
+# 1. Créez un bucket S3 pour stocker la mémoire Terraform (Backend)
 aws s3 mb s3://<votre-nom-de-bucket-backend> --region eu-north-1
 
-# 2. Mettre à jour le bloc "backend s3" dans main.tf avec ce nom de bucket
+# 2. Ajoutez le nom de ce bucket tout en haut du fichier main.tf
 
-# 3. Initialiser Terraform (téléchargement des providers et connexion au backend)
+# 3. Initialisez le projet
 terraform init
 
-# 4. Vérifier les ressources prévues
+# 4. Vérifiez ce qui va être créé
 terraform plan
 
-# 5. Déployer l'infrastructure
+# 5. Déployez !
 terraform apply
 ```
+
 ---
 
 ## Nettoyage
