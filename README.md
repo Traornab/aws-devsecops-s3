@@ -36,10 +36,8 @@ Ce projet a été déployé sur un environnement AWS soumis à des **Service Con
 
 | Fonctionnalité Prévue | Action IAM Bloquée | Contrainte SCP | Solution Implémentée (Fallback) |
 | :--- | :--- | :--- | :--- |
-| **Authentification Zero Trust** | `iam:CreateOpenIDConnectProvider` | OIDC Interdit | Utilisation de GitHub Secrets chiffrés pour les Access Keys, combinée à des permissions GH restreintes (`contents: read`). |
+| **Authentification Zero Trust** | `iam:CreateOpenIDConnectProvider` | OIDC Interdit | Utilisation de GitHub Secrets chiffrés pour les Access Keys, combinée à des permissions restreintes. |
 | **Data Loss Prevention (DLP)** | `macie2:EnableMacie` | Amazon Macie Interdit | Renforcement de la sécurité préventive via le chiffrement avancé (KMS CMK) et le traçage complet (S3 Access Logs) en l'absence de scan PII. |
-
-*Note technique : Savoir identifier, documenter et contourner de manière sécurisée un blocage SCP est une compétence critique pour opérer dans des environnements Cloud d'entreprise.*
 
 ---
 
@@ -72,5 +70,7 @@ terraform plan
 # 5. Déployer l'infrastructure
 terraform apply
 ```
+---
+
 ## Nettoyage
 Exécutez `terraform destroy` et videz manuellement le bucket du Remote Backend à la fin de vos tests pour éviter toute facturation inattendue.
