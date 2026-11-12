@@ -38,10 +38,10 @@ J'ai intégré la sécurité directement dans mon code et sur l'infrastructure :
 ## Les problèmes rencontrés (et mes solutions)
 J'ai déployé cette infrastructure sur un compte AWS soumis à des règles d'entreprise très strictes (AWS Organizations avec des SCP). Je me suis pris des erreurs "403 Access Denied", et j'ai dû trouver des plans B sécurisés :
 
-| Ce que je voulais faire | Le blocage (SCP) | Mon plan B (Fallback) |
-| :--- | :--- | :--- |
-| **Me connecter sans mot de passe (OIDC)** | Création d'OIDC interdite | J'ai utilisé des clés d'accès classiques, mais je les ai stockées de manière chiffrée dans les *GitHub Secrets*, en limitant fortement les permissions de mon pipeline. |
-| **Scanner les données avec l'IA (Macie)** | Activation de Macie interdite | Comme je ne pouvais pas scanner le contenu, j'ai bétonné le contenant : chiffrement avancé (KMS) obligatoire et journalisation de chaque action sur le bucket. |
+| Ce que je voulais faire | Action IAM bloquée | Le blocage (Contrainte SCP) | Mon plan B (Fallback) |
+| :--- | :--- | :--- | :--- |
+| **Me connecter sans mot de passe (Authentification Zero Trust OIDC)** | `iam:CreateOpenIDConnectProvider` | Création d'OIDC interdite | J'ai utilisé des clés d'accès classiques, stockées de manière chiffrée dans les *GitHub Secrets*, en limitant fortement les permissions de mon pipeline. |
+| **Scanner les données avec l'IA (Data Loss Prevention - Macie)** | `macie2:EnableMacie` | Activation de Macie interdite | Comme je ne pouvais pas faire de scan de données sensibles (PII), j'ai securisé le contenant : chiffrement avancé (**KMS CMK**) obligatoire et journalisation de chaque action sur le bucket (**S3 Access Logs**). |
 
 ---
 
