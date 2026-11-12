@@ -13,6 +13,7 @@ Mon objectif avec ce projet est simple : en apprendre toujours plus sur la sécu
 * en construisant de zéro une infrastructure AWS sécurisée, 100 % automatisée avec Terraform et prête pour la production.
 
 J'y ai déployé un coffre-fort numérique (Amazon S3) qui se met à jour tout seul via un pipeline d'intégration continue, avec des contrôles de sécurité à chaque étape.
+
 ---
 
 ## Mes choix d'architecture
