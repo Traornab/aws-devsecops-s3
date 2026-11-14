@@ -95,6 +95,31 @@ Pour prouver que le pipeline bloque réellement les dérives de sécurité avant
 
 <img width="1841" height="870" alt="Capture d’écran du 2026-11-14 20-15-06" src="https://github.com/user-attachments/assets/22218207-f91a-4ac5-9887-54fdcab52617" />
 
+### Validation des politiques AWS (KMS & Access Logs)
+
+En complément des contrôles statiques du pipeline, j'ai validé le comportement de l'infrastructure déployée directement sur AWS :
+
+* **Contrôle à l'upload (`DenyUnencryptedObjectUploads`) :** Toute tentative d'envoi (`s3:PutObject`) sans l'en-tête `aws:kms` est immédiatement rejetée par AWS avec une erreur `AccessDenied`.
+<img width="1902" height="301" alt="Capture d’écran du 2026-11-14 20-41-16" src="https://github.com/user-attachments/assets/efef39a0-7ea9-4401-8ba2-494e7d1a1fee" />
+
+* **Chiffrement effectif :** Les objets déposés avec l'en-tête conforme sont chiffrés au repos avec la clé KMS gérée par le client (CMK).
+  <img width="1214" height="290" alt="Capture d’écran du 2026-11-14 20-48-26" src="https://github.com/user-attachments/assets/c9b4cd94-0d19-4004-8a88-862c567a24a6" />
+
+* **Traçabilité :** Chaque action sur le coffre-fort génère un journal d'accès enregistré dans le compartiment d'audit `logs-secu-cloud-576951332096` sous le préfixe `acces-logs/`.
+
+<img width="1691" height="673" alt="Capture d’écran du 2026-11-14 20-56-02" src="https://github.com/user-attachments/assets/3109c3bc-9eb3-4936-955a-3ad6b10ccf3b" />
+
+<img width="484" height="148" alt="Capture d’écran du 2026-11-14 20-57-10" src="https://github.com/user-attachments/assets/f2f1e1ce-1d86-4943-8923-da7ac28ebd14" />
+
+## Validations d'ajout de fichier et versioning
+<img width="1864" height="806" alt="Capture d’écran du 2026-11-14 20-46-12" src="https://github.com/user-attachments/assets/d484bf39-fc32-4769-aaf9-ebb1a60acf23" />
+
+
+<img width="1504" height="346" alt="Capture d’écran du 2026-11-14 20-50-19" src="https://github.com/user-attachments/assets/cab7643e-e0c8-45a7-8fef-3b3f79230c28" />
+
+
+
+<img width="1632" height="513" alt="Capture d’écran du 2026-11-14 21-00-19" src="https://github.com/user-attachments/assets/365b5a44-27e2-494b-85a9-452938ee5c42" />
 
 ---
 
