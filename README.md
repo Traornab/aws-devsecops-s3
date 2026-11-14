@@ -54,6 +54,7 @@ Tout est automatisé. Quand je push mon code sur GitHub, le workflow `.github/wo
 
 <img width="1849" height="744" alt="Capture d’écran du 2026-11-14 19-59-57" src="https://github.com/user-attachments/assets/2f001263-a0a2-492a-8e9e-d9f3335d94a3" />
 
+<img width="1033" height="348" alt="Capture d’écran du 2026-11-14 20-21-26" src="https://github.com/user-attachments/assets/e1441602-f862-43f8-80b6-26908dc5860e" />
 
 ---
 
@@ -79,9 +80,21 @@ terraform apply
 
 ---
 
-## Test négatif
+## Tests négatifs (Validation des garde-fous)
 
-Pour vérifier que le pipeline joue bien son rôle de barrière de sécurité, il suffit de modifier temporairement un paramètre critique dans `main.tf` (par exemple `block_public_acls = false`) sur une branche de test : Checkov détecte la faille (`CKV_AWS_53`) et bloque le workflow avant même l'étape `terraform plan`.
+Pour prouver que le pipeline bloque réellement les dérives de sécurité avant qu'elles n'atteignent AWS, j'ai exécuté plusieurs scénarios de tests négatifs sur une branche isolée (`test/security-gates`). 
+
+À chaque fois, l'étape **Checkov (`soft_fail: false`)** a détecté la faille et stoppé le workflow avant même le `terraform plan` :
+
+| Scénario testé | Modification volontaire dans `main.tf` | Règle Checkov déclenchée | Résultat du pipeline |
+| :--- | :--- | :--- | :--- |
+| **1. Exposition publique** | `block_public_acls = false` sur le bucket principal | `CKV_AWS_53` | **Bloqué** (déploiement annulé) |
+| **2. Absence de chiffrement KMS** | Suppression du bloc de chiffrement SSE-KMS | `CKV_AWS_145` | **Bloqué** (déploiement annulé) |
+| **3. Désactivation du versioning** | Passage du versioning à `Suspended` | `CKV_AWS_21` | **Bloqué** (déploiement annulé) |
+<img width="461" height="234" alt="Capture d’écran du 2026-11-14 20-15-28" src="https://github.com/user-attachments/assets/f999774b-b296-4d88-9087-5fdbe4545ebc" />
+
+<img width="1841" height="870" alt="Capture d’écran du 2026-11-14 20-15-06" src="https://github.com/user-attachments/assets/22218207-f91a-4ac5-9887-54fdcab52617" />
+
 
 ---
 
