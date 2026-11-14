@@ -8,7 +8,7 @@
 ## Pourquoi ce projet ?
 Étudiant en fin d'études en cybersécurité, j'ai conçu ce projet pour me confronter aux réalités du terrain.
 
-Mon objectif avec ce projet est simple : en apprendre toujours plus sur la sécurité Cloud — un domaine qui devient ma passion de jour en jour — en construisant de zéro une infrastructure AWS sécurisée, 100 % automatisée avec Terraform et prête pour la production.
+Mon objectif avec ce projet est simple : en apprendre toujours plus sur la sécurité Cloud, un domaine qui devient ma passion de jour en jour en construisant de zéro une infrastructure AWS sécurisée, 100 % automatisée avec Terraform et prête pour la production.
 
 J'y ai déployé un coffre-fort numérique (Amazon S3) qui se met à jour tout seul via un pipeline d'intégration continue, avec des contrôles de sécurité bloquants à chaque étape.
 
@@ -44,7 +44,7 @@ J'ai déployé cette infrastructure sur un compte AWS soumis à des règles d'en
 ---
 
 ## Mon Pipeline CI/CD
-Tout est automatisé. Quand je pousse mon code sur GitHub, le workflow `.github/workflows/deploy.yml` prend le relais avec les garde-fous suivants :
+Tout est automatisé. Quand je push mon code sur GitHub, le workflow `.github/workflows/deploy.yml` prend le relais avec les garde-fous suivants :
 
 1.  **Contrôle de concurrence (`concurrency`) :** Empêche deux exécutions simultanées de se chevaucher ou de s'annuler en plein déploiement (`cancel-in-progress: false`).
 2.  **Clonage & Authentification :** Récupération du dépôt et connexion sécurisée à AWS.
@@ -52,14 +52,17 @@ Tout est automatisé. Quand je pousse mon code sur GitHub, le workflow `.github/
 4.  **Planification (`terraform plan -out=tfplan`) :** Génération et vérification du plan d'exécution avant toute modification réelle.
 5.  **Déploiement (`terraform apply -auto-approve tfplan`) :** Application stricte du plan validé.
 
+
+
 ---
 
 ## Tester le projet chez vous
 Si vous voulez cloner mon repo et déployer cette architecture sur votre compte AWS :
 
 ```bash
-# 1. Créez un bucket S3 pour stocker la mémoire Terraform (Backend)
+# 1. Créez un bucket S3 pour stocker la mémoire Terraform (Backend) et activez le versioning
 aws s3 mb s3://<votre-nom-de-bucket-backend> --region eu-north-1
+aws s3api put-bucket-versioning --bucket <votre-nom-de-bucket-backend> --versioning-configuration Status=Enabled
 
 # 2. Ajoutez le nom de ce bucket tout en haut du fichier main.tf
 
