@@ -219,7 +219,12 @@ resource "aws_s3_bucket_policy" "main_bucket_policy" {
   })
 }
 
-resource "aws_s3_bucket_notification" "bucket_notification" {
+resource "aws_s3_bucket_notification" "main_bucket_notification" {
   bucket      = aws_s3_bucket.mon_coffre_fort.id
+  eventbridge = true
+}
+
+resource "aws_s3_bucket_notification" "log_bucket_notification" {
+  bucket      = aws_s3_bucket.log_bucket.id
   eventbridge = true
 }
