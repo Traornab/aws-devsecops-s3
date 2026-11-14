@@ -52,6 +52,7 @@ Tout est automatisé. Quand je push mon code sur GitHub, le workflow `.github/wo
 4.  **Planification (`terraform plan -out=tfplan`) :** Génération et vérification du plan d'exécution avant toute modification réelle.
 5.  **Déploiement (`terraform apply -auto-approve tfplan`) :** Application stricte du plan validé.
 
+<img width="1849" height="744" alt="Capture d’écran du 2026-11-14 19-59-57" src="https://github.com/user-attachments/assets/2f001263-a0a2-492a-8e9e-d9f3335d94a3" />
 
 
 ---
