@@ -4,3 +4,4 @@
 .terraform.tfstate.lock.info
 .terraformrc
 terraform.rc
+*tfplan*
