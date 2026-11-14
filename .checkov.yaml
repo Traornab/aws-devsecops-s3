@@ -1,0 +1,9 @@
+directory:
+  - .
+framework:
+  - terraform
+soft-fail: false
+skip-check:
+  - CKV_AWS_18  # le bucket de logs ne peut pas se journaliser lui-même (risque de boucle infinie)
+  - CKV_AWS_145 # le bucket de logs utilise SSE-S3 (AES256), standard recommandé par AWS pour S3 Server Access Logging
+  - CKV_AWS_144 # mono-région (eu-north-1)
